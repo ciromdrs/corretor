@@ -495,7 +495,7 @@ class CorrecaoWidget(ttk.Frame):
         text.configure(state=tk.NORMAL)  # Habilita a caixa de texto para edição
         text.delete(0.0, 'end')  # Limpa o texto
         text.insert('end', res)  # Insere o resultado
-        altura = min(len(res.split('\n')), 20)  # Ajusta a altura
+        altura = min(self._calcular_altura(res), 20)  # Ajusta a altura
         text.configure(height=altura,
                        state=tk.DISABLED)  # Desabilita a edição
         # Atualiza o label do resultado e a cor do botão
@@ -536,12 +536,22 @@ class CorrecaoWidget(ttk.Frame):
             entrada: str = self.correcao.entrada
             text_entrada.insert('end', entrada)  # Insere a entrada
             # Ajusta a altura
-            altura = len(entrada.split('\n'))
+            altura = self._calcular_altura(entrada)
             text_entrada.configure(height=altura)
         # Desabilita a edição
         text_entrada.configure(state=tk.DISABLED)
         self.text_entrada = text_entrada
     
+    def _calcular_altura(self, texto):
+        '''Calcula a altura do widget.'''
+        linhas = texto.split('\n')
+        altura = 0
+        for l in linhas:
+            # A altura necessária para exibir uma linha é 1 + o comprimento
+            # da linha dividido pela largura do widget
+            altura += 1 + len(l) // LARGURA_TEXT_WIDGET
+        return altura
+
     def _montar_resultado(self):
         row = 4
         ttk.Label(self, text=f'Resultado', style='H2.TLabel').grid(
