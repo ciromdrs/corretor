@@ -2,6 +2,7 @@
     "titulo" : "Atividade 1",
     "comando" : "python",
     "msg_erro" : "Mensagem de erro padrão.",
+    "func_expect" : "testar_regex",
     "pontos" : 0,
     "questoes" : [
         {
@@ -11,19 +12,16 @@
                 {
                     "entrada" : "hello\n",
                     "args" : "hello",
-                    "func_expect" : "testar_igual",
                     "args_expect" : "hello"
                 },
                 {
                     "entrada" : "não\n",
                     "args" : "não",
-                    "func_expect" : "testar_igual",
                     "args_expect" : "não"
                 },
                 {
                     "entrada" : "olá\n",
                     "args" : "olá",
-                    "func_expect" : "testar_igual",
                     "args_expect" : "isto deveria falhar"
                 }
             ]
@@ -33,7 +31,6 @@
             "script" : "q2.py",
             "correcoes" : [
                 {
-                    "func_expect" : "testar_igual",
                     "msg_erro" : "isto deveria dar erro de sintaxe"
                 }
             ]
@@ -42,8 +39,8 @@
             "descricao" : "Questão 3",
             "script" : "arquivo_ausente.py",
             "correcoes" : [
-                { 
-                    "func_expect" : "testar_igual"
+                {
+                    "msg_erro" : "Arquivo intencionalmente ausente."
                 }
             ]
         }

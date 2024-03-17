@@ -96,7 +96,7 @@ class Correcao:
             c += f' {self.args}'
         return c
 
-    def corrigir(self) -> tuple[int, str, str]:
+    def corrigir(self) -> tuple[bool, int, str, str]:
         '''Executa a correcao e retorna o código de saída, a saída e o erro.'''
         codigo = -1
         resposta = 'Não executado\n'
@@ -117,18 +117,14 @@ class Correcao:
             codigo = 1
             resposta = e.stdout.decode() if e.stdout else '\n'
             erro = f'Timeout de {TIMEOUT}s expirado.'
-        # TODO: Revisar os códigos de erro no Windows e Linux
-        # TODO: Revisar os códigos de erro do PHP e Python
-        if codigo == 0: # O script funcionou
-            # Verifica a resposta
-            ok, erro = eval(self.func_expect)(resposta, self.args_expect)
-            if not ok and self.msg_erro:
-                erro = self.msg_erro
-        elif codigo == 2: # File not found
-            erro = f'Arquivo {self.script} não encontrado.'
-        else:
-            erro = f'(Código {codigo})\n' + erro
-        return codigo, resposta, erro
+        # Verificação do resultado
+        if codigo != 0:  # Veio com código de erro
+            return False, codigo, resposta, erro
+        # Código de sucesso, corrige a reposta
+        if not eval(self.func_expect)(resposta, self.args_expect):
+            return False, codigo, resposta, self.msg_erro
+        # Passou na correção
+        return True, codigo, resposta, erro
 
 
 class Atividade:
@@ -159,24 +155,14 @@ class Atividade:
 
 # Funções de correcao
 
-def testar_igual(resultado: str, esperado: str) -> tuple[bool, str]:
-    '''Verifica se o `resultado` é igual ao `esperado`.'''
-    resultado = resultado.strip("\n\r\t ")
-    esperado = esperado.strip("\n\r\t ")
-    if resultado != esperado:
-        erro = f"Esperava '{esperado}', recebeu '{resultado}'"
-        return False, erro
-    return True, ''
-
-def testar_regex(resultado: str, regex: str) -> tuple[bool, str]:
+def testar_regex(resultado: str, regex: str) -> bool:
     '''Verifica se `regex` casa em `resultado`.'''
     import re
     resultado = resultado.strip("\n\r\t ")
     padrao = re.compile(regex)
     if padrao.search(resultado) is None:
-        erro = f'Esperava encontrar o padrão "{regex}".'
-        return False, erro
-    return True, ''
+        return False
+    return True
 
 
 # INTERFACE GRÁFICA
@@ -480,10 +466,10 @@ class CorrecaoWidget(ttk.Frame):
 
     def _corrigir(self):
         '''Executa a correcao e atualiza a interface com o resultado.'''
-        _, saida, erro = self.correcao.corrigir()
+        correta, codigo, saida, erro = self.correcao.corrigir()
         # Atualiza a interface
         text = self.text_resultado
-        res = ''  # Guarda o resultado da correção
+        res = ''  # Guarda todo o do resultado da correção
         if saida:
             saida = saida  # Remove a linha extra que sempre vem
             res += f'Saída:\n{saida}'
@@ -491,7 +477,7 @@ class CorrecaoWidget(ttk.Frame):
             # Adiciona quebra de linha antes do erro
             if len(res) > 0 and not res.endswith('\n'):
                 res += '\n'
-            res += f'Erro:\n{erro}'
+            res += f'Erro ({codigo}):\n{erro}'
         text.configure(state=tk.NORMAL)  # Habilita a caixa de texto para edição
         text.delete(0.0, 'end')  # Limpa o texto
         text.insert('end', res)  # Insere o resultado
@@ -501,12 +487,12 @@ class CorrecaoWidget(ttk.Frame):
         # Atualiza o label do resultado e a cor do botão
         estilo = 'TButton' # Começa com botão comum
         # Mesmo o código sendo 0, a saída precisa ser a esperada, então é necessário que erro seja None
-        if erro:
-            self.resultado = 'Incorreta'
-            estilo = 'Vermelho.' + estilo
-        else:
+        if correta:
             self.resultado = 'Correta'
             estilo = 'Verde.' + estilo
+        else:
+            self.resultado = 'Incorreta'
+            estilo = 'Vermelho.' + estilo
         self.label_resultado.configure(text=self.resultado)
         self.botao_corrigir.configure(style=estilo)
         # Atualiza o widget da questão
