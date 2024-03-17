@@ -184,6 +184,7 @@ def testar_regex(resultado: str, regex: str) -> tuple[bool, str]:
 # Constantes
 PADDING = 5
 LARGURA_WIDGET_QUESTAO = 694
+LARGURA_TEXT_WIDGET = 80
 DIMENSOES_JANELA = "1024x600"
 
 # Classes
@@ -527,7 +528,7 @@ class CorrecaoWidget(ttk.Frame):
         ttk.Label(self, text=f'Entrada', style='H2.TLabel').grid(column=0, row=row, sticky='w',
             pady=(0, PADDING))
         row += 1
-        text_entrada = ScrolledText(self, wrap=tk.WORD, width=80, height=1)
+        text_entrada = ScrolledText(self, wrap=tk.WORD, width=LARGURA_TEXT_WIDGET, height=1)
         text_entrada.grid(column=0, row=row, sticky='w', columnspan=2,
             pady=(0, PADDING))
         text_entrada.delete(0.0, 'end')  # Limpa o texto
@@ -547,7 +548,7 @@ class CorrecaoWidget(ttk.Frame):
             column=0, row=row, sticky='w', pady=(0, PADDING))
         row += 1
         self.text_resultado = ScrolledText(self, wrap=tk.WORD, 
-                                    width=80, height=1, state=tk.DISABLED)
+                                    width=LARGURA_TEXT_WIDGET, height=1, state=tk.DISABLED)
         self.text_resultado.grid(column=0, row=row, sticky='w', columnspan=2,
             pady=(0, PADDING))
 
