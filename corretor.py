@@ -115,7 +115,7 @@ class Correcao:
             erro = processo.stderr
         except subprocess.TimeoutExpired as e:
             codigo = 1
-            resposta = e.stdout.decode() if e.stdout else '\n'
+            resposta = e.stdout if e.stdout else '\n'
             erro = f'Timeout de {TIMEOUT}s expirado.'
         # Verificação do resultado
         if codigo != 0:  # Veio com código de erro
