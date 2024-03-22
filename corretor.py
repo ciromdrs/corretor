@@ -301,7 +301,11 @@ class Corretor():
         tk.Tk.report_callback_exception = \
             lambda root, _, val, tb : showerror("Error", message=str(val))
         janela = tk.Tk()
-        janela.state('zoomed')
+        if SISTEMA == 'linux':
+            janela.attributes('-zoomed', True)
+        else:
+            janela.state('zoomed')
+
         self.janela = janela
 
         # Tema e estilos
