@@ -55,16 +55,17 @@ class Correcao:
     '''Uma correção de uma questão.'''
 
     def __init__(self, script: str, msg_erro: str, comando: str,
-                 func_expect, args_expect: list = [],
-                 entrada: str = '', args: str = '', **kwargs):
+                 verificacoes: list = [],
+                 entrada: str = '', args: str = '', **_):
         '''Construtor.
         
         Parâmetros:
         - `script` é o script da resposta.
         - `msg_erro` mensagem de erro amigável ao usuário.
         - `comando` é o comando do terminal para executar o script da resposta.
-        - `func_expect` é a função que verifica a saída do script.
-        - `args_expect` são os argumentos da função que verifica a saída do script.
+        - `verificacoes` é uma lista de dicionários {"func_expect" : ..., "args_expect" : ...}, onde:
+            - `func_expect` é a função que verifica a saída do script.
+            - `args_expect` são os argumentos da função que verifica a saída do script.
         - `entrada` é a entrada do teclado.
         - `args` são os argumentos da linha de comando.
         '''
@@ -72,10 +73,7 @@ class Correcao:
         self.script: str = script
         self.entrada: str = entrada
         self.args: str = args
-        # TODO: Unificar func_expect e args_expect num argumento só.
-        # Isso ajuda a não esquecer um ou outro.
-        self.func_expect: str = func_expect
-        self.args_expect: list = args_expect
+        self.verificacoes: list[dict] = verificacoes
         self.msg_erro: str = msg_erro
 
     @classmethod
@@ -84,7 +82,27 @@ class Correcao:
         
         Parâmetros:
         - `config` são as configurações de uma correção (um elemento da lista "correcoes").
+          A chave `"verificacoes"` é uma lista de dicionários `{"func_expect" : ..., "args_expect" : ...}`.
+          Além dela, há a chave `"mais_verificacoes"`, de mesmo tipo.
+          É obrigatório definir `"verificacoes"` na definição da correção ou em algum ancestral (para definir verificações comuns a várias correções).
+          Porém, caso se queira adicionar verificações a uma correção que herda correções comuns definidas em algum ancestral, pode-se usar a chave `"mais_verificacoes"` na definição dela.
+          As chaves `"func_expect"` e `"args_expect"` podem ser definidas para preencher valores faltando em `"verificacoes"` e `"mais_verificacoes"`.
+
+        Retorno:
+        O objeto `Correcao`.
         '''
+        # Cria ou acessa as verificações
+        verificacoes = config['verificacoes']
+        # Adiciona mais verificações
+        verificacoes += config.get('mais_verificacoes', [])
+        # Preenche valores faltando
+        for chave in ['func_expect', 'args_expect']:
+            for v in verificacoes:
+                valor = config.get(chave, None)
+                if valor:
+                    v.setdefault(chave, valor)
+            # Retira do config pra não passar para a Correcao
+            config.pop(chave, None)
         correcao = cls(**config)
         return correcao
 
@@ -120,9 +138,13 @@ class Correcao:
         # Verificação do resultado
         if codigo != 0:  # Veio com código de erro
             return False, codigo, resposta, erro
-        # Código de sucesso, corrige a reposta
-        if not eval(self.func_expect)(resposta, self.args_expect):
-            return False, codigo, resposta, self.msg_erro
+        # Código de sucesso, corrige a resposta
+        for v in self.verificacoes:
+            func_expect = v['func_expect']
+            args_expect = v['args_expect']
+            passou = eval(func_expect)(resposta, args_expect)
+            if not passou:
+                return False, codigo, resposta, self.msg_erro
         # Passou na correção
         return True, codigo, resposta, erro
 
@@ -163,6 +185,10 @@ def testar_regex(resultado: str, regex: str) -> bool:
     if padrao.search(resultado) is None:
         return False
     return True
+
+def testar_nao_regex(resultado: str, regex: str) -> bool:
+    '''Verifica se `regex` não casa em `resultado`.'''
+    return not testar_regex(resultado, regex)
 
 
 # INTERFACE GRÁFICA

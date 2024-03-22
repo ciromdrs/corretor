@@ -12,17 +12,23 @@
                 {
                     "entrada" : "hello\n",
                     "args" : "hello",
-                    "args_expect" : "hello"
+                    "verificacoes" : [
+                        { "args_expect" : "hello" }
+                    ]
                 },
                 {
                     "entrada" : "não\n",
                     "args" : "não",
-                    "args_expect" : "não"
+                    "verificacoes" : [
+                        { "args_expect" : "não" }
+                    ]
                 },
                 {
                     "entrada" : "olá\n",
                     "args" : "olá",
-                    "args_expect" : "isto deveria falhar"
+                    "verificacoes" : [
+                        { "args_expect" : "isto deveria falhar" }
+                    ]
                 }
             ]
         },
