@@ -37,6 +37,7 @@
             "script" : "q2.py",
             "correcoes" : [
                 {
+                    "verificacoes" : [],
                     "msg_erro" : "isto deveria dar erro de sintaxe"
                 }
             ]
@@ -46,6 +47,7 @@
             "script" : "arquivo_ausente.py",
             "correcoes" : [
                 {
+                    "verificacoes" : [],
                     "msg_erro" : "Arquivo intencionalmente ausente."
                 }
             ]
