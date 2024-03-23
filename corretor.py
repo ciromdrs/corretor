@@ -514,17 +514,11 @@ class CorrecaoWidget(ttk.Frame):
         altura = min(self._calcular_altura(res), 20)  # Ajusta a altura
         text.configure(height=altura,
                        state=tk.DISABLED)  # Desabilita a edição
-        # Atualiza o label do resultado e a cor do botão
-        estilo = 'TButton' # Começa com botão comum
-        # Mesmo o código sendo 0, a saída precisa ser a esperada, então é necessário que erro seja None
         if correta:
             self.resultado = 'Correta'
-            estilo = 'Verde.' + estilo
         else:
             self.resultado = 'Incorreta'
-            estilo = 'Vermelho.' + estilo
         self.label_resultado.configure(text=self.resultado)
-        self.botao_corrigir.configure(style=estilo)
         # Atualiza o widget da questão
         self.widget_questao.atualizar()
     
@@ -533,9 +527,6 @@ class CorrecaoWidget(ttk.Frame):
         label.grid(column=0, sticky='w', pady=(0, PADDING))
         label = ttk.Label(self, text=f'{self.correcao.comando_completo}')
         label.grid(row=1, column=0, sticky='w', pady=(0, PADDING))
-        self.botao_corrigir = ttk.Button(self, text='Testar', width=8,
-            command=self._corrigir)
-        self.botao_corrigir.grid(column=1, row=0, sticky='e')
         self.label_resultado = ttk.Label(self, text=f'')
         self.label_resultado.grid(column=1, row=1, sticky='e', pady=(0, PADDING))
 
