@@ -1,0 +1,4 @@
+import os
+
+# Diretório deste script
+TEST_DIR = os.path.dirname(os.path.realpath(__file__))
