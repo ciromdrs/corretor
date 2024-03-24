@@ -329,7 +329,9 @@ class Corretor():
             showerror("Erro", 'Arquivo de configuração' + \
                       f' "{caminho_config}" não encontrado.')
             exit()
-        config = json.load(open(caminho_config, encoding='utf-8'))
+        arq_config = open(caminho_config, encoding='utf-8')
+        config = json.load(arq_config)
+        arq_config.close()
         self.atividade = Atividade.ler_config(config)
 
         # Configura a janela
