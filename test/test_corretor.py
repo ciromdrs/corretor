@@ -14,3 +14,5 @@ class TestLerConfig(unittest.TestCase):
     def test_atividade_ler_config(self):
         '''Testa Atividade.ler_config.'''
         assert self.atividade.titulo == "Atividade 1"
+        assert len(self.atividade.questoes) == 3
+
