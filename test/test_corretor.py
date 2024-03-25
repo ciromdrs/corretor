@@ -1,4 +1,5 @@
-from src.corretor.corretor import Atividade
+'''Testa o script corretor.py'''
+
 from . import fxt_atividade
 
 
