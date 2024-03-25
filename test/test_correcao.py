@@ -1,12 +1,23 @@
 '''Testa a classe Correcao.'''
 
-from src.corretor.corretor import Correcao
+import pytest
+
 from . import fxt_atividade
 
+
+# FIXTURES
+
+@pytest.fixture
+def fxt_correcao(fxt_atividade):
+    return fxt_atividade.questoes[0].correcoes[0]
+
+
+# CASOS DE TESTE
+
 class TestCorrecao:
-    def test_ler_config(self, fxt_atividade):
+    def test_ler_config(self, fxt_correcao):
         '''Testa o método ler_config.'''
-        correcao = fxt_atividade.questoes[0].correcoes[0]
+        correcao = fxt_correcao
         verificacao = correcao.verificacoes[0]
         
         assert correcao.entrada == 'hello\n'
