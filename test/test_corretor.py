@@ -33,4 +33,16 @@ class TestLerConfig:
         assert questao.descricao == "Questão 1"
         assert len(questao.correcoes) == 3
         assert questao.pontos == 0
+    
+    def test_correcao_ler_config(self, fxt_atividade):
+        '''Testa Correcao.ler_config.'''
+        correcao = fxt_atividade.questoes[0].correcoes[0]
+        verificacao = correcao.verificacoes[0]
+        
+        assert correcao.entrada == 'hello\n'
+        assert correcao.args == 'hello'
+        assert correcao.msg_erro == 'Mensagem de erro padrão.'
+        assert len(correcao.verificacoes) == 1
+        assert verificacao['func_expect'] == 'testar_regex'
+        assert verificacao['args_expect'] == 'hello'
 
