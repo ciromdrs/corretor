@@ -24,11 +24,12 @@
                     ]
                 },
                 {
-                    "entrada" : "olá\n",
-                    "args" : "olá",
+                    "entrada" : "hello\n",
+                    "args" : "hello",
                     "verificacoes" : [
-                        { "args_expect" : "isto deveria falhar" }
-                    ]
+                        { "args_expect" : "olá" }
+                    ],
+                    "msg_erro" : "isto deveria falhar"
                 }
             ]
         },

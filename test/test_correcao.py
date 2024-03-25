@@ -2,7 +2,7 @@
 
 import pytest
 
-from . import fxt_atividade
+from . import fxt_atividade, TEST_DIR
 
 
 # FIXTURES
@@ -26,3 +26,5 @@ class TestCorrecao:
         assert len(correcao.verificacoes) == 1
         assert verificacao['func_expect'] == 'testar_regex'
         assert verificacao['args_expect'] == 'hello'
+        assert correcao.diretorio == f'{TEST_DIR}/data'
+    

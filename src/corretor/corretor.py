@@ -54,15 +54,17 @@ class Questao:
 class Correcao:
     '''Uma correção de uma questão.'''
 
-    def __init__(self, script: str, msg_erro: str, comando: str,
+    def __init__(self, comando: str, diretorio: str, script: str, 
+                 msg_erro: str,
                  verificacoes: list = [],
                  entrada: str = '', args: str = '', **_):
         '''Construtor.
         
         Parâmetros:
+        - `comando` é o comando do terminal para executar o script da resposta.
+        - `diretorio` é o diretório base, onde fica o arquivo de configuração. O caminho para o `script` é relativo a ele.
         - `script` é o script da resposta.
         - `msg_erro` mensagem de erro amigável ao usuário.
-        - `comando` é o comando do terminal para executar o script da resposta.
         - `verificacoes` é uma lista de dicionários {"func_expect" : ..., "args_expect" : ...}, onde:
             - `func_expect` é a função que verifica a saída do script.
             - `args_expect` são os argumentos da função que verifica a saída do script.
@@ -70,11 +72,12 @@ class Correcao:
         - `args` são os argumentos da linha de comando.
         '''
         self.comando: str = comando
+        self.diretorio: str = diretorio
         self.script: str = script
+        self.msg_erro: str = msg_erro
+        self.verificacoes: list[dict] = verificacoes
         self.entrada: str = entrada
         self.args: str = args
-        self.verificacoes: list[dict] = verificacoes
-        self.msg_erro: str = msg_erro
 
     @classmethod
     def ler_config(cls, config: dict) -> 'Correcao':
@@ -107,21 +110,34 @@ class Correcao:
         return correcao
 
     @property
-    def comando_completo(self) -> str:
-        '''Retorna o comando para executar o script, incluindo o comando do terminal, script e argumentos.'''
-        c = f'{self.comando} {self.script}'
+    def comando_completo_str(self) -> str:
+        '''Retorna uma str concatenando o `comando_completo_list`.'''
+        comando_list = self.comando_completo_list
+        return ' '.join(comando_list)
+
+    @property
+    def comando_completo_list(self) -> list:
+        '''Retorna como list o comando para executar o script, incluindo o comando do terminal, script e argumentos.'''
+        c = [self.comando, f'{self.diretorio}/{self.script}']
         if self.args:
-            c += f' {self.args}'
+            c += [self.args]
         return c
 
     def corrigir(self) -> tuple[bool, int, str, str]:
-        '''Executa a correcao e retorna o código de saída, a saída e o erro.'''
+        '''Executa a correção.
+
+        Retorno:
+        - um booleano indicando se passou no teste ou não.
+        - o código de saída da execução do script.
+        - a saída do script.
+        - o erro, se houver, seja do script (arquivo não existe, erro de sintaxe, etc.) ou da resposta (saída diferente da esperada).
+        '''
         codigo = -1
         resposta = 'Não executado\n'
         erro = 'Não executado\n'
         try:
             processo = subprocess.run(
-                [self.comando, self.script, self.args],
+                self.comando_completo_list,
                 capture_output=True,
                 input=self.entrada,
                 text=True,
@@ -151,13 +167,14 @@ class Correcao:
 
 class Atividade:
     '''Uma atividade, com questões para corrigir.'''
+
     def __init__(self, titulo: str, questoes: list[Questao]):
         self.titulo: str = titulo
         self.questoes: list[Questao] = questoes
     
     @classmethod
     def ler_config(cls, config: dict) -> 'Atividade':
-        '''Lê uma arquivo de configuração recursivamente.
+        '''Lê um dicionário de configuração recursivamente.
 
         Parâmetros:
         - `config` é o dicionário lido do arquivo de configuração.
@@ -172,7 +189,23 @@ class Atividade:
             config_questao.update(aux)
             questoes += [Questao.ler_config(config_questao)]
         return cls(titulo, questoes)
-        
+
+    @classmethod 
+    def ler_arquivo_config(cls, caminho: str):
+        '''Lê um arquivo de configuração recursivamente.
+        Atualiza todos os nomes de scripts para caminhos absolutos tendo como base o diretório do arquivo de configuração.
+
+        Parâmetros:
+        - `caminho` é o caminho para o arquivo de configuração.
+        '''
+        # Lê o arquivo de configuração
+        arq_config = open(caminho, encoding='utf-8')
+        config = json.load(arq_config)
+        arq_config.close()
+        # Adiciona o diretório do arquivo de configuração ao config
+        diretorio = os.path.dirname(os.path.abspath(caminho))
+        config['diretorio'] = diretorio
+        return cls.ler_config(config)
 
 
 # Funções de correcao
@@ -329,10 +362,7 @@ class Corretor():
             showerror("Erro", 'Arquivo de configuração' + \
                       f' "{caminho_config}" não encontrado.')
             exit()
-        arq_config = open(caminho_config, encoding='utf-8')
-        config = json.load(arq_config)
-        arq_config.close()
-        self.atividade = Atividade.ler_config(config)
+        self.atividade = Atividade.ler_arquivo_config(caminho_config)
 
         # Configura a janela
         janela.title(f"Corretor Automático - {self.atividade.titulo}")
@@ -527,7 +557,7 @@ class CorrecaoWidget(ttk.Frame):
     def _montar_primeira_linha(self):
         label = ttk.Label(self, text=f'Comando', style='H2.TLabel')
         label.grid(column=0, sticky='w', pady=(0, PADDING))
-        label = ttk.Label(self, text=f'{self.correcao.comando_completo}')
+        label = ttk.Label(self, text=f'{self.correcao.comando_completo_str}')
         label.grid(row=1, column=0, sticky='w', pady=(0, PADDING))
         self.label_resultado = ttk.Label(self, text=f'')
         self.label_resultado.grid(column=1, row=1, sticky='e', pady=(0, PADDING))

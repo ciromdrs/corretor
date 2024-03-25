@@ -1,4 +1,4 @@
-import json, os, pytest
+import os, pytest
 
 from src.corretor.corretor import Atividade
 
@@ -10,8 +10,5 @@ TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 
 @pytest.fixture
 def fxt_atividade():
-    arq_config = open(f'{TEST_DIR}/data/config.json')
-    config = json.load(arq_config)
-    arq_config.close()
-    atividade = Atividade.ler_config(config)
+    atividade = Atividade.ler_arquivo_config(f'{TEST_DIR}/data/config.json')
     return atividade
