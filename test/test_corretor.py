@@ -21,7 +21,7 @@ class TestLerConfig:
         assert len(atividade.questoes) == 3
     
     def test_questao_ler_config(self, fxt_atividade):
-        '''Testa Atividade.ler_config.'''
+        '''Testa Questao.ler_config.'''
         questao = fxt_atividade.questoes[0]
         
         assert questao.descricao == "Questão 1"
