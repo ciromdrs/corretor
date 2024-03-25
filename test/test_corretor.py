@@ -1,4 +1,4 @@
-import json, pytest, unittest
+import json, pytest
 
 from src.corretor.corretor import Atividade, Questao, Correcao
 
