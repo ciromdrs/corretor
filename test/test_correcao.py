@@ -28,3 +28,13 @@ class TestCorrecao:
         assert verificacao['args_expect'] == 'hello'
         assert correcao.diretorio == f'{TEST_DIR}/data'
     
+    def test_testar_regex(self, fxt_correcao):
+        '''Testa o método testar_regex.'''
+        correcao = fxt_correcao
+
+        res, codigo, resposta, msg_erro = correcao.corrigir()
+
+        assert res == True
+        assert resposta == 'hello\n'
+        assert msg_erro == ""
+        assert codigo == 0
