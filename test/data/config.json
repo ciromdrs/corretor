@@ -52,6 +52,21 @@
                     "msg_erro" : "Arquivo intencionalmente ausente."
                 }
             ]
+        },
+        {
+            "descricao" : "Tipagem de Funções",
+            "script" : "func.py",
+            "correcoes" : [
+                {
+                    "verificacoes" : [
+                        {
+                            "func_expect" : "testar_param_sem_tipo",
+                            "args_expect" : "func.py"
+                        }
+                    ],
+                    "msg_erro" : "Há parâmetros não tipados."
+                }
+            ]
         }
    ]
 }

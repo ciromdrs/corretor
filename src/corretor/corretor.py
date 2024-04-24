@@ -1,4 +1,4 @@
-import json, os, platform, subprocess, tkinter as tk
+import ast, json, os, platform, subprocess, tkinter as tk
 
 from tkinter import ttk
 from tkinter.messagebox import showerror
@@ -223,6 +223,26 @@ def testar_nao_regex(resultado: str, regex: str) -> bool:
     '''Verifica se `regex` não casa em `resultado`.'''
     return not testar_regex(resultado, regex)
 
+def testar_param_sem_tipo(_, caminho_script: str) -> bool:
+    '''Verifica se o script tem alguma função com parâmetros não tipados`.
+    '''
+    f = open(caminho_script)
+    arvore = ast.parse(f.read())
+    f.close()
+    funcoes = _buscar_funcoes(arvore)
+    for func in funcoes:
+        for arg in func.args.args:
+            if arg.annotation is None:
+                return False
+    return True
+
+def _buscar_funcoes(arvore: ast.AST) -> list[ast.AST]:
+    funcs = []
+    if type(arvore).__name__ == 'FunctionDef':
+        funcs += [arvore]
+    for subarvore in ast.iter_child_nodes(arvore):
+        funcs += _buscar_funcoes(subarvore)
+    return funcs
 
 # INTERFACE GRÁFICA
 
