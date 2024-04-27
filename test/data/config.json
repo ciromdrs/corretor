@@ -60,11 +60,11 @@
                 {
                     "verificacoes" : [
                         {
-                            "func_expect" : "testar_param_sem_tipo",
+                            "func_expect" : "testar_tipo_funcoes",
                             "args_expect" : "func.py"
                         }
                     ],
-                    "msg_erro" : "Há parâmetros não tipados."
+                    "msg_erro" : "Há funções não tipadas."
                 }
             ]
         }

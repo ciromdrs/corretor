@@ -12,13 +12,13 @@ class TestLerConfig:
         '''Testa Atividade.ler_arquivo_config.'''
         atividade = Atividade.ler_arquivo_config(f'{TEST_DIR}/data/config.json')
         assert atividade.titulo == "Atividade 1"
-        assert len(atividade.questoes) == 3
+        assert len(atividade.questoes) == 4
     
     def test_atividade_ler_config(self, fxt_atividade):
         '''Testa Atividade.ler_config.'''
         atividade = fxt_atividade
         assert atividade.titulo == "Atividade 1"
-        assert len(atividade.questoes) == 3
+        assert len(atividade.questoes) == 4
     
     def test_questao_ler_config(self, fxt_atividade):
         '''Testa Questao.ler_config.'''

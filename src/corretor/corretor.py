@@ -223,22 +223,67 @@ def testar_nao_regex(resultado: str, regex: str) -> bool:
     '''Verifica se `regex` não casa em `resultado`.'''
     return not testar_regex(resultado, regex)
 
-def testar_param_sem_tipo(_, caminho_script: str) -> bool:
-    '''Verifica se o script tem alguma função com parâmetros não tipados`.
+def testar_tipo_funcoes(_, caminho_script: str) -> bool:
+    '''Verifica se o script tem alguma função com parâmetros ou retorno não tipados.
     '''
+    # Interpreta a sintaxe do script
     f = open(caminho_script)
     arvore = ast.parse(f.read())
     f.close()
     funcoes = _buscar_funcoes(arvore)
     for func in funcoes:
-        for arg in func.args.args:
-            if arg.annotation is None:
-                return False
+        if not _testar_param_sem_tipo(func):
+            return False
+        if not _testar_tipo_return(func):
+            return False
     return True
 
-def _buscar_funcoes(arvore: ast.AST) -> list[ast.AST]:
+def _testar_param_sem_tipo(func: ast.FunctionDef) -> bool:
+    '''Verifica se a função `func` tem parâmetros não tipados`.
+    '''
+    for arg in func.args.args:
+        if arg.annotation is None:
+            return False
+    return True
+
+def _testar_tipo_return(func: ast.FunctionDef) -> bool:
+    # Assume que a função não retorna nada
+    frutifera = False
+    # Verifica se o retorno está tipado
+    tipo_retorno = func.returns
+    if tipo_retorno is not None:
+        # Função tipada, verifica se é uma constante
+        tipo_constante = isinstance(tipo_retorno, ast.Constant)
+        # Se não for constante, com certeza é frutífera
+        frutifera = not tipo_constante
+        # Se for constante
+        if tipo_constante:
+            # Só é frutífera a constante for diferente de `None`
+            if tipo_retorno.value != None:
+                frutifera = True
+    # Se a função for frutífera, todos os `return` devem retornam algo
+    # Senão, nenhum `return` pode retornar nada
+    for r in _buscar_returns(func):
+        if frutifera != (r.value is not None):
+            return False
+    return True
+
+def _buscar_returns(arvore: ast.AST) -> list[ast.Return]:
+    # Se esse nó é um `return`, retorna ele
+    if isinstance(arvore, ast.Return):
+        return [arvore]
+    # Senão, encontra todos os `return`'s dentro dele
+    returns = []
+    for subarvore in ast.iter_child_nodes(arvore):
+        # Se houver uma definição de função dentro de outra, pula
+        # TODO: Testar também a tipagem de funções dentro de funções
+        if not isinstance(subarvore, ast.FunctionDef):
+            returns += _buscar_returns(subarvore)
+    return returns
+
+def _buscar_funcoes(arvore: ast.AST) -> list[ast.FunctionDef]:
     funcs = []
-    if type(arvore).__name__ == 'FunctionDef':
+    if isinstance(arvore, ast.FunctionDef):
         funcs += [arvore]
     for subarvore in ast.iter_child_nodes(arvore):
         funcs += _buscar_funcoes(subarvore)

@@ -38,3 +38,8 @@ class TestCorrecao:
         assert resposta == 'hello\n'
         assert msg_erro == ""
         assert codigo == 0
+
+    @pytest.mark.skip(reason='Não implementado.')
+    def test_testar_tipo_funcoes(self, fxt_correcao):
+        '''TODO: Testa o método testar_tipo_funcoes.'''
+        raise Exception('Não implementado.')
