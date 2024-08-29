@@ -120,7 +120,6 @@ class Correcao:
         return c
 
     def corrigir(self) -> tuple[bool, int, str, str]:
-        print('Correção:', vars(self))
         '''Executa a correção.
 
         Retorno:
