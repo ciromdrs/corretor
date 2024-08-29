@@ -596,15 +596,15 @@ class CorrecaoWidget(ttk.Frame):
         correta, codigo, saida, erro = self.correcao.corrigir()
         # Atualiza a interface
         text = self.text_resultado
-        res = ''  # Guarda todo o do resultado da correção
-        if saida:
-            saida = saida  # Remove a linha extra que sempre vem
-            res += f'Saída:\n{saida}'
+        res = ''  # Guarda todo o texto do resultado da correção
         if erro:
-            # Adiciona quebra de linha antes do erro
+            res += f'Erro ({codigo}):\n{erro}\n\n'
+        if saida:
+            # Adiciona quebra de linha depois do erro
             if len(res) > 0 and not res.endswith('\n'):
                 res += '\n'
-            res += f'Erro ({codigo}):\n{erro}'
+            saida = saida  # Remove a linha extra que sempre vem
+            res += f'Saída:\n{saida}'
         text.configure(state=tk.NORMAL)  # Habilita a caixa de texto para edição
         text.delete(0.0, 'end')  # Limpa o texto
         text.insert('end', res)  # Insere o resultado
