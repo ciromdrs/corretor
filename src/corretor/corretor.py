@@ -620,7 +620,7 @@ class CorrecaoWidget(ttk.Frame):
     def _montar_primeira_linha(self):
         label = ttk.Label(self, text=f'Comando', style='H2.TLabel')
         label.grid(column=0, sticky='w', pady=(0, PADDING))
-        label = ttk.Label(self, text=f'{self.correcao.comando_completo_str}')
+        label = ttk.Label(self, text=self.correcao.comando_completo_str)
         label.grid(row=1, column=0, sticky='w', pady=(0, PADDING))
         self.label_resultado = ttk.Label(self, text=f'')
         self.label_resultado.grid(column=1, row=1, sticky='e', pady=(0, PADDING))
