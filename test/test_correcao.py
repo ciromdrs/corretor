@@ -21,11 +21,11 @@ class TestCorrecao:
         verificacao = correcao.verificacoes[0]
         
         assert correcao.entrada == 'hello\n'
-        assert correcao.args == 'hello'
-        assert correcao.msg_erro == 'Mensagem de erro padrão.'
+        assert correcao.args == ['hello']
         assert len(correcao.verificacoes) == 1
         assert verificacao['func_expect'] == 'testar_regex'
-        assert verificacao['args_expect'] == 'hello'
+        assert verificacao['args_expect'] == ['hello']
+        assert verificacao['msg_erro'] == 'Mensagem de erro padrão.'
         assert correcao.diretorio == f'{TEST_DIR}/data'
     
     def test_testar_regex(self, fxt_correcao):

@@ -55,29 +55,27 @@ class Correcao:
     '''Uma correção de uma questão.'''
 
     def __init__(self, comando: str, diretorio: str, script: str, 
-                 msg_erro: str,
                  verificacoes: list = [],
-                 entrada: str = '', args: str = '', **_):
+                 entrada: str = '', args: list[str] = [], **_):
         '''Construtor.
         
         Parâmetros:
         - `comando` é o comando do terminal para executar o script da resposta.
         - `diretorio` é o diretório base, onde fica o arquivo de configuração. O caminho para o `script` é relativo a ele.
         - `script` é o script da resposta.
-        - `msg_erro` mensagem de erro amigável ao usuário.
-        - `verificacoes` é uma lista de dicionários {"func_expect" : ..., "args_expect" : ...}, onde:
+        - `verificacoes` é uma lista de dicionários `{"func_expect" : ..., "args_expect" : ..., "msg_erro"}`, onde:
             - `func_expect` é a função que verifica a saída do script.
-            - `args_expect` são os argumentos da função que verifica a saída do script.
+            - `args_expect` é a lista de argumentos de `func_expect`.
+            - `msg_erro` mensagem de erro amigável ao usuário.
         - `entrada` é a entrada do teclado.
         - `args` são os argumentos da linha de comando.
         '''
         self.comando: str = comando
         self.diretorio: str = diretorio
         self.script: str = script
-        self.msg_erro: str = msg_erro
         self.verificacoes: list[dict] = verificacoes
         self.entrada: str = entrada
-        self.args: str = args
+        self.args: list[str] = args
 
     @classmethod
     def ler_config(cls, config: dict) -> 'Correcao':
@@ -85,21 +83,21 @@ class Correcao:
         
         Parâmetros:
         - `config` são as configurações de uma correção (um elemento da lista "correcoes").
-          A chave `"verificacoes"` é uma lista de dicionários `{"func_expect" : ..., "args_expect" : ...}`.
+          A chave `"verificacoes"` é uma lista de dicionários {"func_expect" : ..., "args_expect" : ..., "msg_erro"}.
           Além dela, há a chave `"mais_verificacoes"`, de mesmo tipo.
           É obrigatório definir `"verificacoes"` na definição da correção ou em algum ancestral (para definir verificações comuns a várias correções).
           Porém, caso se queira adicionar verificações a uma correção que herda correções comuns definidas em algum ancestral, pode-se usar a chave `"mais_verificacoes"` na definição dela.
           As chaves `"func_expect"` e `"args_expect"` podem ser definidas para preencher valores faltando em `"verificacoes"` e `"mais_verificacoes"`.
 
         Retorno:
-        O objeto `Correcao`.
+            O objeto `Correcao`.
         '''
         # Cria ou acessa as verificações
         verificacoes = config['verificacoes']
         # Adiciona mais verificações
         verificacoes += config.get('mais_verificacoes', [])
         # Preenche valores faltando
-        for chave in ['func_expect', 'args_expect']:
+        for chave in ['func_expect', 'args_expect', 'msg_erro']:
             for v in verificacoes:
                 valor = config.get(chave, None)
                 if valor:
@@ -118,12 +116,11 @@ class Correcao:
     @property
     def comando_completo_list(self) -> list:
         '''Retorna como list o comando para executar o script, incluindo o comando do terminal, script e argumentos.'''
-        c = [self.comando, f'{self.diretorio}/{self.script}']
-        if self.args:
-            c += [self.args]
+        c = [self.comando, f'{self.diretorio}/{self.script}'] + self.args
         return c
 
     def corrigir(self) -> tuple[bool, int, str, str]:
+        print('Correção:', vars(self))
         '''Executa a correção.
 
         Retorno:
@@ -158,9 +155,10 @@ class Correcao:
         for v in self.verificacoes:
             func_expect = v['func_expect']
             args_expect = v['args_expect']
-            passou = eval(func_expect)(resposta, args_expect)
+            msg_erro = v['msg_erro']
+            passou = eval(func_expect)(resposta, *args_expect)
             if not passou:
-                return False, codigo, resposta, self.msg_erro
+                return False, codigo, resposta, msg_erro
         # Passou na correção
         return True, codigo, resposta, erro
 
